@@ -28,6 +28,7 @@ while True:
 
     # Get submissions made by Redditor
     submitted = user.get_submitted(limit = 10)
+    output_archive.write("------SUBMISSIONS-------\n\n\n")
     if debug == True:
         print("Got Submissions")
 
@@ -52,9 +53,12 @@ while True:
                 output_archive.write("Body: \n" + str(j.selftext) + "\n\n")
             elif j.is_self == False:
                 output_archive.write("Link: \n" + str(j.url) + "\n\n")
+            output_archive.write("-----------------------------------\n\n\n")
+
 
     # Get user submitted comments made by Redditor
-    comments = user.get_comments(limit = 25)
+    comments = user.get_comments(limit = 5)
+    output_archive.write("------COMMENTS-------\n\n\n")
     if debug == True:
         print("Got Comments")
 
@@ -62,15 +66,26 @@ while True:
     for i in comments:
         if debug == True:
             print("Started comment loop")
-        if i.id not in already_archived:
-            already_archived.append(i.id)
-            # Submit Date
-            # Subreddit
-            # PermaLink to comment
-            # PermaLink to thread
-            # Text
-            # Parent or original post
-            # Points
+        if str(i.id) not in already_archived:
+            already_archived.write(i.id + "\n")
+            # Get submission datetime
+            timestamp = i.created_utc
+            dt = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(int(timestamp)))
+            # Write to archive (should I add comments?)
+            output_archive.write("Submission Date: \n" + dt + "\n\n")
+            # Permalink to comment
+            output_archive.write("Permalink: \n" + str(i.permalink) + "\n\n")
+            output_archive.write("Subreddit: \n" + str(i.subreddit) + "\n\n")
+            output_archive.write("Post Score: \n" + str(i.score) + "\n\n")
+            # Get the parent ID
+            parent = r.get_info(thing_id=i.parent_id)
+            # Print the parent body if comment or selftext if submission
+            if i.is_root == True:
+                output_archive.write("Post Parent: \n" + str(parent.selftext) + "\n\n")
+            elif i.is_root == False:
+                output_archive.write("Comment parent: \n" + str(parent.body) + "\n\n")
+            output_archive.write("Comment Body: \n" + str(i.body) + "\n\n")
+            output_archive.write("-----------------------------------\n\n\n")
 
     # Set frequency of run
     if debug == True:
