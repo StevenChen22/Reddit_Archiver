@@ -1,43 +1,63 @@
 # Copyright 2014(c) Steven Chen
-# Uses PRAW to archive Reddit posts from u/CityofVancouver
+# Uses PRAW to archive Reddit posts and comments from a user
+# Runs once per day
 
 # Import Python Reddit API Wrapper (PRAW) and time
-import praw
 import time
+import praw
 
 debug = False
 
-output_archive = open("archive.txt", "r+")
-already_archived = open("already_archived.txt", "r+")
-
 # Connect to Reddit and identify user and script
-user_agent = ("Reddit Archiver 1.0 by /u/CityofVancouver"\
-                "https://github.com/StevenChen22/Reddit_Archiver")
-r = praw.Reddit(user_agent)
+user_agent = ("/u/CityofVancouver testing praw")
+r = praw.Reddit(user_agent=user_agent)
 
 # Specify Redditor
-user_name = "CityofVancouver"
+user_name = "CityofVancouverWA"
 user = r.get_redditor(user_name)
 if debug == True:
     print("Logged in")
 
-# While loop - beause it's a Bot
-while True:
-    if debug == True:
-        print("Started Loop")
+# Set number of comments and submissions to pull
+submitted = user.get_submitted(limit = 1)
+comments = user.get_comments(limit = 1)
 
-    # Get submissions made by Redditor
-    submitted = user.get_submitted(limit = 10)
-    output_archive.write("------SUBMISSIONS-------\n\n\n")
+def archive_check(n):
+    found = False
+    for i in archived_list:
+        return i
+        if str(n) in i:
+            found = True
+    return found
+
+# While loop - beause it's a Bot and it needs to run 5ever!
+counter = 0
+while counter < 2:
+    # Build already in archive list
+    archived_list = []
+    already_archived = open("already_archived.txt", "r")
+
+    for line in already_archived:
+        archived_list += [line.strip()]
+
+    already_archived.close()
+
+    output_archive = open("archive.txt", "a+")
+    already_archived = open("already_archived.txt", "a+")
+
+# Get submissions made by Redditor
+    output_archive.write("------SUBMISSIONS-------\n")
+    output_archive.write("Pulled: " + time.strftime('%Y-%m-%d %H:%M:%S') + "\n\n\n")
+
     if debug == True:
         print("Got Submissions")
 
-    # Archive user submitted posts
+    # Archive user submitted posts to file
     for j in submitted:
         if debug == True:
             print("Started submission loop")
 
-        if j.id not in already_archived:
+        if archive_check(j.id) == False:
             already_archived.write(j.id + "\n")
             # Get submission datetime
             timestamp = j.created_utc
@@ -55,18 +75,17 @@ while True:
                 output_archive.write("Link: \n" + str(j.url) + "\n\n")
             output_archive.write("-----------------------------------\n\n\n")
 
-
-    # Get user submitted comments made by Redditor
-    comments = user.get_comments(limit = 5)
-    output_archive.write("------COMMENTS-------\n\n\n")
+# Get user submitted comments made by Redditor
+    output_archive.write("------COMMENTS-------\n")
+    output_archive.write("Pulled: " + time.strftime('%Y-%m-%d %H:%M:%S') + "\n\n\n")
     if debug == True:
         print("Got Comments")
 
-    # Archive user submitted comments and the parent
+    # Archive user submitted comments and the parent to file
     for i in comments:
         if debug == True:
             print("Started comment loop")
-        if str(i.id) not in already_archived:
+        if archive_check(i.id) == False:
             already_archived.write(i.id + "\n")
             # Get submission datetime
             timestamp = i.created_utc
@@ -87,11 +106,12 @@ while True:
             output_archive.write("Comment Body: \n" + str(i.body) + "\n\n")
             output_archive.write("-----------------------------------\n\n\n")
 
-    # Set frequency of run
+    output_archive.close()
+    already_archived.close()
+
     if debug == True:
         print("Finished loops!")
-    False
-#    time.sleep(86400)
 
-already_archived.close()
-output_archive.close()
+    # Set frequency of run
+    print("Sleeping for 24 hours...")
+    time.sleep(86400)
