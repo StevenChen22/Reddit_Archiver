@@ -19,8 +19,8 @@ if debug == True:
     print("Logged in")
 
 # Set number of comments and submissions to pull
-submitted = user.get_submitted(limit = 1)
-comments = user.get_comments(limit = 1)
+submitted = user.get_submitted(limit = 5)
+comments = user.get_comments(limit = 5)
 
 def archive_check(n):
     found = False
@@ -73,7 +73,7 @@ while counter < 2:
                 output_archive.write("Body: \n" + str(j.selftext) + "\n\n")
             elif j.is_self == False:
                 output_archive.write("Link: \n" + str(j.url) + "\n\n")
-            output_archive.write("-----------------------------------\n\n\n")
+    output_archive.write("-----------------------------------\n\n\n")
 
 # Get user submitted comments made by Redditor
     output_archive.write("------COMMENTS-------\n")
@@ -104,7 +104,7 @@ while counter < 2:
             elif i.is_root == False:
                 output_archive.write("Comment parent: \n" + str(parent.body) + "\n\n")
             output_archive.write("Comment Body: \n" + str(i.body) + "\n\n")
-            output_archive.write("-----------------------------------\n\n\n")
+    output_archive.write("-----------------------------------\n\n\n")
 
     output_archive.close()
     already_archived.close()
