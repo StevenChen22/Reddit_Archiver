@@ -7,7 +7,7 @@ import time
 
 debug = False
 
-output_archive = open("archive.txt", "w")
+output_archive = open("archive.txt", "r+")
 already_archived = open("already_archived.txt", "r+")
 
 # Connect to Reddit and identify user and script

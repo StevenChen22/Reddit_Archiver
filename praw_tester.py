@@ -4,9 +4,9 @@
 
 import time
 import praw
-output_archive = open("archive.txt", "w")
-already_archived = open("already_archived.txt", "r+")
 
+output_archive = open("archive.txt", "a+")
+already_archived = open("already_archived.txt", "r")
 
 user_agent = ("/u/CityofVancouver testing praw")
 r = praw.Reddit(user_agent=user_agent)
@@ -16,9 +16,30 @@ user = r.get_redditor(user_name)
 
 debug = False
 
+# Build already in archive list
+archived_list = []
+
+for line in already_archived:
+    archived_list += [line.strip()]
+
+# Reopen file for writing
+already_archived.close()
+already_archived = open("already_archived.txt", "a+")
+
+
+def archive_check(n):
+    found = False
+    for i in archived_list:
+        return i
+        if str(n) in i:
+            found = True
+    return found
+
 # TRYING TO PRINT COMMENTS!
 # Get user submitted comments made by Redditor
-comments = user.get_comments(limit = 5)
+comments = user.get_comments(limit = 1)
+output_archive.write("------COMMENTS-------\n")
+output_archive.write("Pulled: " + time.strftime('%Y-%m-%d %H:%M:%S') + "\n\n\n")
 if debug == True:
     print("Got Comments")
 
@@ -26,7 +47,8 @@ if debug == True:
 for i in comments:
     if debug == True:
         print("Started comment loop")
-    if str(i.id) not in already_archived:
+        print("ARCHIVE CHECK", i.id, archive_check(i.id))
+    if archive_check(i.id) == False:
         already_archived.write(i.id + "\n")
         # Get submission datetime
         timestamp = i.created_utc
@@ -52,31 +74,36 @@ for i in comments:
 # THIS IS WORKING FOR PULLING SUMBMISSIONS
 
 # Get submissions made by Redditor
-#submitted = user.get_submitted(limit = 10)
-#if debug == True:
-#    print("Got Submissions")
+submitted = user.get_submitted(limit = 1)
+output_archive.write("------SUBMISSIONS-------\n")
+output_archive.write("Pulled: " + time.strftime('%Y-%m-%d %H:%M:%S') + "\n\n\n")
+
+if debug == True:
+    print("Got Submissions")
 
 # Archive user submitted posts
-#for j in submitted:
-#    if debug == True:
-#        print("Started submission loop")
+for j in submitted:
+    if debug == True:
+        print("Started submission loop")
+        print("ARCHIVE CHECK", archive_check(j.id))
 
-#    if j.id not in already_archived:
-#        already_archived.write(j.id + "\n")
+    if archive_check(j.id) == False:
+        already_archived.write(j.id + "\n")
         # Get submission datetime
-#        timestamp = j.created_utc
-#        dt = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(int(timestamp)))
+        timestamp = j.created_utc
+        dt = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(int(timestamp)))
         # Write to archive (should I add comments?)
-#        output_archive.write("Submission Date: \n" + dt + "\n\n")
-#        output_archive.write("Permalink: \n" + str(j.permalink) + "\n\n")
-#        output_archive.write("Subreddit: \n" + str(j.subreddit) + "\n\n")
-#        output_archive.write("Post Score: \n" + str(j.score) + "\n\n")
-#        output_archive.write("Title: \n" + str(j.title) + "\n\n")
+        output_archive.write("Submission Date: \n" + dt + "\n\n")
+        output_archive.write("Permalink: \n" + str(j.permalink) + "\n\n")
+        output_archive.write("Subreddit: \n" + str(j.subreddit) + "\n\n")
+        output_archive.write("Post Score: \n" + str(j.score) + "\n\n")
+        output_archive.write("Title: \n" + str(j.title) + "\n\n")
         # See if self post or not and write self text body or link
-#        if j.is_self == True:
-#            output_archive.write("Body: \n" + str(j.selftext) + "\n\n")
-#        elif j.is_self == False:
-#            output_archive.write("Link: \n" + str(j.url) + "\n\n")
+        if j.is_self == True:
+            output_archive.write("Body: \n" + str(j.selftext) + "\n\n")
+        elif j.is_self == False:
+            output_archive.write("Link: \n" + str(j.url) + "\n\n")
+        output_archive.write("-----------------------------------\n\n\n")
 
 # --------------
 
