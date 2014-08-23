@@ -2,7 +2,6 @@
 # Uses PRAW to archive Reddit posts and comments from a user
 # Runs once per day
 # Needs already_archived.txt to exist in same directory
-# NEED TO REVERSE ARVICE CHECK
 
 # Import Python Reddit API Wrapper (PRAW) and time
 import time
