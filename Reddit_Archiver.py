@@ -2,6 +2,7 @@
 # Uses PRAW to archive Reddit posts and comments from a user
 # Runs once per day
 # Needs already_archived.txt to exist in same directory
+# NEED TO REVERSE ARVICE CHECK
 
 # Import Python Reddit API Wrapper (PRAW) and time
 import time
@@ -26,21 +27,20 @@ comments = user.get_comments(limit = 5)
 def archive_check(n):
     """Check to see if ID has been archived already"""
     found = False
-    for i in archived_list:
-        return i
-        if str(n) in i:
-            found = True
+    if str(n) in archived_list:
+        found = True
     return found
 
 # Main while loop - beause it's a Bot and it needs to run 5ever!
-counter = 0
-while counter < 2:
+while True:
     # Build 'already in archive' list
     archived_list = []
+    forward_archived_list = []
     already_archived = open("already_archived.txt", "r")
 
     for line in already_archived:
         archived_list += [line.strip()]
+
 
     already_archived.close()
 
@@ -65,16 +65,16 @@ while counter < 2:
             timestamp = j.created_utc
             dt = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(int(timestamp)))
             # Write to archive
-            output_archive.write("Submission Date: \n" + dt + "\n\n")
-            output_archive.write("Permalink: \n" + str(j.permalink) + "\n\n")
-            output_archive.write("Subreddit: \n" + str(j.subreddit) + "\n\n")
-            output_archive.write("Post Score: \n" + str(j.score) + "\n\n")
-            output_archive.write("Title: \n" + str(j.title) + "\n\n")
+            output_archive.write("--Submission Date: \n" + dt + "\n\n")
+            output_archive.write("--Permalink: \n" + str(j.permalink) + "\n\n")
+            output_archive.write("--Subreddit: \n" + str(j.subreddit) + "\n\n")
+            output_archive.write("--Post Score: \n" + str(j.score) + "\n\n")
+            output_archive.write("--Title: \n" + str(j.title) + "\n\n")
             # See if self post or not and write self text body or link
             if j.is_self == True:
-                output_archive.write("Body: \n" + str(j.selftext) + "\n\n")
+                output_archive.write("--Body: \n" + str(j.selftext) + "\n\n")
             elif j.is_self == False:
-                output_archive.write("Link: \n" + str(j.url) + "\n\n")
+                output_archive.write("--Link: \n" + str(j.url) + "\n\n")
     output_archive.write("-----------------------------------\n\n\n")
 
 # Get user submitted comments made by Redditor
@@ -93,19 +93,19 @@ while counter < 2:
             timestamp = i.created_utc
             dt = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(int(timestamp)))
             # Write to archive
-            output_archive.write("Submission Date: \n" + dt + "\n\n")
+            output_archive.write("--Submission Date: \n" + dt + "\n\n")
             # Permalink to comment, not original post
-            output_archive.write("Permalink: \n" + str(i.permalink) + "\n\n")
-            output_archive.write("Subreddit: \n" + str(i.subreddit) + "\n\n")
-            output_archive.write("Post Score: \n" + str(i.score) + "\n\n")
+            output_archive.write("--Permalink: \n" + str(i.permalink) + "\n\n")
+            output_archive.write("--Subreddit: \n" + str(i.subreddit) + "\n\n")
+            output_archive.write("--Post Score: \n" + str(i.score) + "\n\n")
             # Get the parent ID
             parent = r.get_info(thing_id=i.parent_id)
             # Write the parent body if comment or selftext if submission
             if i.is_root == True:
-                output_archive.write("Post Parent: \n" + str(parent.selftext) + "\n\n")
+                output_archive.write("--Post Parent: \n" + str(parent.selftext) + "\n\n")
             elif i.is_root == False:
-                output_archive.write("Comment parent: \n" + str(parent.body) + "\n\n")
-            output_archive.write("Comment Body: \n" + str(i.body) + "\n\n")
+                output_archive.write("--Comment parent: \n" + str(parent.body) + "\n\n")
+            output_archive.write("--Comment Body: \n" + str(i.body) + "\n\n")
     output_archive.write("-----------------------------------\n\n\n")
 
     output_archive.close()
