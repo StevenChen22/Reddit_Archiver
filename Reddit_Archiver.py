@@ -10,7 +10,8 @@ import praw
 debug = False
 
 # Connect to Reddit and identify user and script
-user_agent = ("/u/CityofVancouver testing praw")
+user_agent = ("Reddit Archiver 1.0 by /u/CityofVancouver"\
+                "https://github.com/StevenChen22/Reddit_Archiver")
 r = praw.Reddit(user_agent=user_agent)
 
 # Specify Redditor
@@ -18,10 +19,6 @@ user_name = "CityofVancouverWA"
 user = r.get_redditor(user_name)
 if debug == True:
     print("Logged in")
-
-# Set number of comments and submissions to pull
-submitted = user.get_submitted(limit = 5)
-comments = user.get_comments(limit = 5)
 
 def archive_check(n):
     """Check to see if ID has been archived already"""
@@ -32,6 +29,10 @@ def archive_check(n):
 
 # Main while loop - beause it's a Bot and it needs to run 5ever!
 while True:
+    # Set number of comments and submissions to pull
+    submitted = user.get_submitted(limit = 5)
+    comments = user.get_comments(limit = 5)
+
     # Build 'already in archive' list
     archived_list = []
     forward_archived_list = []
@@ -98,7 +99,7 @@ while True:
             output_archive.write("--Subreddit: \n" + str(i.subreddit) + "\n\n")
             output_archive.write("--Post Score: \n" + str(i.score) + "\n\n")
             # Get the parent ID
-            parent = r.get_info(thing_id=i.parent_id)
+            parent = r.get_info(thing_id = i.parent_id)
             # Write the parent body if comment or selftext if submission
             if i.is_root == True:
                 output_archive.write("--Post Parent: \n" + str(parent.selftext) + "\n\n")
